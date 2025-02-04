@@ -1,0 +1,141 @@
+These probablilies take role in a robot where it needs to generate a befitting action on the basis of the sensory data.
+Only estimation can be done while pin-pointing our location.
+
+Some recurring terms in this course:
+	1) State Estimation
+		To identify our "things in space"
+		A cyclic nature of answer "What does the world look like?" by trying to know "Where am I?"
+			Eg: You can coclude from seeing a street sign that you're next to a street, or you may conclude, from knowing that you are next to a street that the sign you see is marking the street
+		The process of calculating and updating a robot's current position and orientation (pose) within an environment, along with the map of that environment, by combining sensor data with a mathematical model, essentially allowing the robot to simultaneously figure out where it is while building a map of its surroudings
+	2) Localization
+		To point to its position in the map generated in mapping.
+	3) Mapping
+		Robotic mapping is a discipline related to computer vision and cartography. The goal for an autonomous robot is to be able to construct (or use) a map (outdoor use) or floor plan (indoor use) and to localize itself and its recharging bases or beacons in it.
+	4) SLAM - Simultaneous Localization and Mapping
+	5) Navigation
+	6) Motion Planning
+
+Why Probabilistic Approaches?
+	Uncertainity in robot motion and observations.
+	World is filled with noise.
+	Use of probability theory to exlicitly represent the uncertainity.
+	No PERFECT things in this world.
+	Eg: If we try to pingpoint the position of a robot and it finds itself 0.5mm away from the desired position, it will try to move and then repeat the process again and again, may  even start oscillating, as the world is very uneven, imperfect and basic ideal rules of physics can't describe it.
+	Taking probabilistic distance will allow a room for it.
+
+Probability Primer: -- I would personally recommend CS50 AI Uncertainity lecture.
+• Probability theory is the key tool for robust state estimation and robotics
+• Probability theory allows to explicitly model uncertainties
+• Roughly 90% of the techniques presented in this course rely on it
+
+Very Basics Axioms of Probablility:
+Let Pr(A) denote the probablility of proposition A being true.
+	0<=Pr(A)< = 1
+	Pr(True) = 1
+	Pr(False) = 0
+	Pr(A v B)= Pr(A) + Pr(B) - Pr(A ^ B)
+	Note: Comma notation denotes and.
+
+All proability theorems
+Negation:
+	Pr(~A) = 1 - Pr(A)
+	Using: Pr(A v B) = Pr(A) + Pr(B) - Pr(A ^ B) and putting B as ~A
+	Pr(A v	~A) = Pr(A) + Pr(~A) - Pr(A ^ ~A)
+		1		= Pr(A) + Pr(~A) - 0
+		On rearranging we get the negation principle
+
+Discrete Random Variables
+• X denotes a random variable
+• X can take on a countable number of values in {x1, x2,.., xn}
+• P(X = xi) = P(xi) is the probability that the random variable X takes the value xi
+• P is called probability mass function
+
+Continuous Random Variables
+• X takes on values in the continuum
+• p(X = x) = p(x) is a probability
+density function
+	Pr(x belonging to [a,b]) = Integration from a to b of p(x)dx
+	Sum of all events is always true hence the probabilities add to 1 even in integration.
+
+Joint and Conditional Probability -- Again, should learn from CS50 AI - Uncertainity, poorly explained here for someone unfamiliar with these.
+• P(X = x and Y = y) = P(x, y)
+• If X and Y are independent then
+	P (x, y) = P (x) P(y)
+- P(x | y) is the probability of X given Y
+	P (x, y) = P(x| y) P(y)
+	P(x y) =Р(x, y) / P(y)
+• If X and Y are independent then
+	Р (x y) = Р (х)
+
+Law of Total Probability
+Discrete case
+	P(x) = Sum for different y P(x | y) P(y)
+Continuous case
+	p(x) = Integration of p(x | y) p(y) dy
+
+Visualized example using binning of data points found
+	To get probablilites from a joint probablity distribution and then thinking about finding the probablity of x given that y=1 is known to be occuring.
+
+
+	
+Example:
+		S	~S		Sum	
+M		20    35    55
+-M		20    45    65
+Sum		40    80   120
+
+P(M, S) = 20 / 120
+P(M, -S) = 35 / 120
+P(M) = 55 / 120
+P(-M) = 65 / 120
+P(S) = 40 / 120
+
+P(M | S) = P(M, S) / P(S)  
+          = (20 / 120) / (40 / 120)  
+          = 20 / 40  
+          = 1 / 2  
+          = 0.5
+
+Bayes' Rule -- Key ingredient in Bayes' filter
+	P(x,y) = P(x|y)P(y)
+	P(x,y) = P(y|x)P(x)
+
+	P(x|y) = P(y|x)P(x)/P(y) = Likelihood(P(y|x))*Prior(P(x))/Evidence(P(y))
+	P(disease | test resulted +ve) = P(test resulted +ve | disease)/P(test resulted +ve)
+	We test the patients who are confirmed for a disease, with a test and get these probabilities on the Right Hand Side of the equation, then use the Left Hand Side for advertising the probablility of the test being true given it tested positive.
+	This is helpfull for deteremining the prob like this previous of our official use of the test.
+
+	Add z for Bayes' rule with Background Knowledge:
+		P (x | y, z) means P(x | (y ^ z))
+		P (x:y, z) = P (y | x, z) P (x|z)/P(y|z)
+		Can be derived using P(x| (y^z)) = P(x^y^z)/P(y^z)
+										 = P(x^y^z)/(P(y|z)*P(z))
+				similarly,	 P(y| (x^z)) = P(x^y^z)/(P(x|z)*P(z))
+							hence, P(x| (y^z)) = P(y | (x^z))*P(x|z)/P(y|z)
+Note: Need to have clear concepts of disjoint events and independent event as well as one even taking one after the other and taking place at the same instance and how their venn diagrams will be formed.
+
+Conditional Independence
+Two variables(let them be x and y) are conditional independent if
+P(x, y | z) = P(x | z) P (y | z)
+• Equivalent to P(x | z) = P(x | z, y) and
+P(y | z) = P(y | z, x*)
+• But this does not imply
+P(x, y) = P (x) P(y)
+(regular independence/marginal independence)
+
+Normal Distribution:
+	Univariate: 1-dimensional
+	Unimodal: one mode
+	Like Gaussian distribution
+	The diagram has a mean and a variance
+	N(x | μ, σ²) = (1 / sqrt(2πσ²)) * exp{ - (1 / 2σ²) * (x - μ)² }
+
+Can have Gaussian Mixture of Multi-Modal (number of components)
+p(x) = Σ (from k=1 to K) π_k * N(x | μ_k, Σ_k)
+
+Summary
+• Probability is an essential tool to solve state estimation problems
+• Make sure you know how to deal with
+	• probabilities,
+	• uncertainties,
+	• Bayes' rule,

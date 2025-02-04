@@ -1,0 +1,55 @@
+Focus: mobile systems that move through the environment, perceive the environment but also take actions to reach a certain goal.
+Like a robot in a maze reaching to the very end.
+
+Perceive, Understand and Act.
+
+State estimation
+Recursive filtering localization
+Control problems
+
+AUVs, UAVs, Satellites, Autonomous Cars etc.
+
+The 2 fundamental questions in mobile robotics:
+	1. What is the state of the world? -- State Estimation Problem
+		Turn the data grabed from the sensors into usable data.
+		The data could have locations, 3D environment, etc.
+		Final we either get a single state or a probablity distribution.
+	2. Which actions to execute? -- Action Selection Problem
+		Like execuation of a navigation command
+		Also the action should bring us in a better position with respect to the desired state
+
+The solution typically involves:
+	Typically filtering techniques like Kalman fileter or particle filter.
+	Planning techniques such as markov decision making
+
+2 Key perception problems:
+	1. Estimating semantics
+	2. Estimating geometry
+
+This course deals with:
+• Introduction to Python
+	Trying to avoid coding on the screen, but home assignments.
+• Probability primer & Bayes filter
+	Starting with probability with deriving the baye's filter, which is essential for recursive state estimation.
+• Occupancy grid mapping
+	Would answer which part of the environment has the obstacle.
+	It's kind of building an architectural floor plan for obstacles and allowed space to move.
+	Then localization can be done based on the kalman, particle filters.
+• Locomotion
+	Basic desingning of movements.
+	Motion/Probibilistic motion models will be used.
+	Interpretation of sensor data.
+	Uncertainity in the sensor data.
+• Motion and observation models
+	Need models for what does the action result to and what the observation mean.
+• Extended Kalman filter & EKF localization
+• Particle filter & Monte Carlo localization
+• Robot control
+	2nd part of the course
+	Deals with the active parts
+• Motion planning
+	Precision
+	Planning what actions to take and their sequence like in A*
+
+
+

@@ -1,0 +1,99 @@
+Recursive State Estimation
+
+State Estimation
+• Estimate the state x of a system given observations z and controls u
+• Goal:
+P (xt | z1:t, u1:t): Taking in account the data from first state to the tth state, and willing to derive to get this in terms of xt-1 for recursion to take place
+
+Short notation: bel(xt)=p(xt|z1:t, u1:t)
+	This is the posterior(finding P(a|b) from P(b|a), P(a) and P(b)) probability distribution over the state  x_t  at time  t , given all past observations ( z_{1:t} ) and control inputs ( u_{1:t} ).
+
+Better robo example : https://www.youtube.com/watch?v=8PtZx6SeJ2s
+	Also, explains the motion models, measurement models and initial beliefs
+
+Markov's Assumpation tells us that: the future state only depends upon the current state and not on the previous states. https://www.youtube.com/watch?v=i3AkTO9HLXo&t=4s
+
+bel(x_t) = p(x_t | z_{1:t}, u_{1:t})  
+# Definition of belief as posterior probability
+
+= η p(z_t | x_t, z_{1:t-1}, u_{1:t}) p(x_t | z_{1:t-1}, u_{1:t})  
+# Applying Bayes' theorem
+
+= η p(z_t | x_t) p(x_t | z_{1:t-1}, u_{1:t})  
+# Conditional independence assumption: measurement z_t depends only on x_t
+
+= η p(z_t | x_t) ∫ p(x_t | x_{t-1}, z_{1:t-1}, u_{1:t}) p(x_{t-1} | z_{1:t-1}, u_{1:t}) dx_{t-1}  
+# Applying total probability by integrating over x_{t-1}
+
+= η p(z_t | x_t) ∫ p(x_t | x_{t-1}, u_t) p(x_{t-1} | z_{1:t-1}, u_{1:t}) dx_{t-1}  
+# Markov assumption: x_t depends only on x_{t-1} and u_t
+
+= η p(z_t | x_t) ∫ p(x_t | x_{t-1}, u_t) bel(x_{t-1}) dx_{t-1}  
+# Replacing p(x_{t-1} | z_{1:t-1}, u_{1:t}) with bel(x_{t-1}), the recursive term
+
+
+Almost every filter like kalman/extended kalman/particle/extended-particle/histogram filter, rely on this mathematical framework.
+	Counting the assumptions:
+		1 & 2) Markov: Given a present state past doesn't affect the future state. Did so for the observation and motion model.
+		3) The future command doesn't help me with determining the past.
+
+The Bayes Filter operates in two main steps:
+
+1. Prediction Step:
+
+This step updates the belief about the state before incorporating the measurement by using the motion model. It predicts the new state based on the previous belief and the control input.
+
+￼
+
+Here,
+	•	￼ is the predicted belief (prior before observation).
+	•	￼ is the state transition model (how the system moves).
+	•	￼ is the previous belief.
+
+2. Correction Step:
+
+This step updates the prediction using the new measurement ￼ to refine the belief. It applies Bayes’ rule to incorporate the likelihood of the observation.
+
+￼
+
+Here,
+	•	￼ is the updated belief (posterior after observation).
+	•	￼ is the measurement likelihood (how likely we observe ￼ given ￼).
+	•	￼ is a normalization factor to ensure probabilities sum to 1.
+
+Summary:
+	•	Prediction: Uses motion model to estimate state.
+	•	Correction: Uses observation model to refine belief.
+
+
+Motion and Observation Model
+• Prediction step
+// Missing formula here
+motion model
+• Correction step
+bel (xt) = nP(zt | xt) bel (xt)
+observation model
+(also: measurement or sensor model)
+
+Popular Filters
+- Kalman filter & EKF
+	• Gaussians
+	• Linear or linearized models
+• Particle filter
+	• Non-parametric
+	• Arbitrary models (sampling required)
+
+
+If you are chat gpt explain a little about odometry based motion and banana shaped graphs.
+
+Example: Simple Observation
+Model with Gaussian Noise
+• Range sensor estimating the distance to the closest obstacle
+• Gaussian noise in the range reading
+
+
+Summary
+• Probabilities occur is most of the problems addressed here
+• Bayes filter is a framework for state estimation
+• There are different realizations of the Bayes filter that we will study in this course (e.g., EKF, particle filter)
+• Motion and observation model are central models in the Bayes filter to be specified
