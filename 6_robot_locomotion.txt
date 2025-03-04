@@ -1,0 +1,13 @@
+Locomotion
+
+Under this we'll study how different robots move in their environment like cars, drones, etc.
+A need to find commands/adjust/synchronise movements and inputs given to motors/actuators/etc. to govern the movement of the robot.
+
+Locomotion of Wheeled Robots
+• Locomotion is the "power of motion from place to place"
+• Relevant for state estimation
+Typical drives
+• Differential drive (Pioneer 2-DX)
+• Car drive (Ackerman steering)
+• Synchronous drive (B21)
+• Mecanum wheels

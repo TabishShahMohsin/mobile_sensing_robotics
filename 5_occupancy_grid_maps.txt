@@ -1,0 +1,214 @@
+Eg: Pixelated image with blacks representing obstacles and white area representing empty spaces, the intesity of black (Usually from 0 to 255) could also be used to represent probablility but not done so here.
+
+Why Mapping?
+• Maps are required for most robotic tasks like localization, planning. A plan is needed, to make the approach the seemingly best approach.
+• Task of understanding how the environment looks like
+• Learning maps from sensor data is one of the fundamental tasks in robotics
+
+Updating the map if needed.
+The Maps contain probability as 1 or 0 or 0.5 only....
+
+Popular sensors used: 
+	1) Cameras -- Stereo/mono/RGB
+	2) Laser Range Finders
+	3) Sonar Range Sesors
+
+
+Feature vs Volumetric Maps
+Feature maps store the location of distinct points in the environment. They may use special marked landmarks like trees to add information to the map.
+
+These maps can be used in studying archaelogical sites, self-driving car
+
+A voxel layer represents multidimensional spatial and temporal information in a 3D volumetric visualization. For example, you can visualize atmospheric or oceanic data, a geological underground model, or space-time cubes as voxel layers.
+Using maps we can also identify different items in the map, for example in the case of self-driving cars we would need to differenciate a human, car, traffic cone, other cars, etc.
+
+
+Description of Mapping task
+compute the most likely map given the sensor data
+	m* = argmax P(m|u1, z1, .... ut, zt) where argmax returns the class with the highest probability.
+But today, we see how to compute the map given the robot's pose
+	m* = argmaxm P(m | x1, z1,..., xt, zt)
+
+
+
+ Features: 
+ map is a set of features often points.
+ Standard approach in photogrammetry and computer vision
+ Multiple feature observations improve the landmark position estimate.
+ Not dicussing about this much.
+
+ Grid Maps
+• Map models occupancy of the space
+• Discretize the world into cells -- 2D area or 3D volume
+• Grid structure is rigid
+• Each cell is assumed to be occupied or free space
+• Non-parametric model -- Not using any gaussian represention, just plotting the things that we derive from the data directly.
+• Large maps may require substantial memory resources
+• Do not rely on a feature detector
+
+Assumption 1:
+	1. The area that corresponds to a cell is either completely free or occupied. This is not true but as pixels on the tv screen despite being blocks represent curves and slant lines, this can be used as a good approximate.
+	2. Binary Random variable representing 1 or 0 or 0.5 comming on that later.
+	3.	Prob =1 for occupant, prob=0 for free, prob=0.5 if Not discovered yet.
+	4. Again the prof refers as if the prob could be 0.8 but shouldn't this be contradicting the first assumption? The 0.8 for this formation will be read as 1 as it's closer to it than to 0.
+
+
+Occupancy Probablility
+Occupancy Probability
+• Each cell is a binary random variable that models the occupancy
+• Notation:
+	P(Mi = occ) = Росс (Mi) = p(mi)
+• The opposite event
+	P(Mi = free) = Pfree (Mi) = 1 - Pocc (Mi) = p(-mi)Occupancy Probability Example
+Each cell is a binary random variable that models the occupancy
+P(Mi = occ) = p(mi) = 1
+P(Mi = free) = p(-mi) = 1 - p(mi) = 0
+口
+P(Mi = occ) = p(mi) = 0
+P(Mi = free) = p(-mi) = 1 - p(mi) = 1
+• P(Mi = occ) = p (mi) = 0.75
+P(Mi = free) = p(-mi) = 0.25
+
+Assumption 2:
+	The world is static (most mapping systems make this assumption)
+
+
+Assumption 3:
+	The cells (the random variables) are independent of each other. Again these assumptions may/maynot hold in real life, as a wall is most probably not a single point but a complete block.
+
+Joint distribution of occupancy of a piece of map : p(m) = p(m1, m2, m3, m4, m5, ..mN)
+	prob of all the cells with and conjuctive together
+	If the prob is independent product can be used in its place
+
+Representation
+The probability distribution of the map is given by the product over the cells
+P(m) = П from i p(mi)
+
+Therfore, we can find prob of any cells being occupied/uncoccupied with any combination.
+
+
+Using bayes filter to estimate this binary random variable and a varient of the bayes' filter the binary bayes' filterwhich is optimized for estimating the probablility of binary random variable and we will use the second assumption in the derivation to be done. All for a static filter.
+
+Static State Binary Bayes Filter
+
+p(m_i | z_{1:t}, x_{1:t})
+
+Bayes rule:
+= p(z_t | m_i, z_{1:t-1}, x_{1:t}) p(m_i | z_{1:t-1}, x_{1:t}) / p(z_t | z_{1:t-1}, x_{1:t})
+
+Markov:
+= p(z_t | m_i, x_t) p(m_i | z_{1:t-1}, x_{1:t-1}) / p(z_t | z_{1:t-1}, x_{1:t})
+
+Bayes rule:
+= p(m_i | z_t, x_t) p(z_t | x_t) p(m_i | z_{1:t-1}, x_{1:t-1}) / (p(m_i | x_t) p(z_t | z_{1:t-1}, x_{1:t}))
+
+indep.:
+= p(m_i | z_t, x_t) p(z_t | x_t) p(m_i) / (p(m_i) p(z_t | z_{1:t-1}, x_{1:t}))
+
+Do exactly the same for the opposite event:
+
+p(¬m_i | z_{1:t}, x_{1:t})
+
+the same:
+= p(¬m_i | z_t, x_t) p(z_t | x_t) p(¬m_i | z_{1:t-1}, x_{1:t-1}) / (p(¬m_i) p(z_t | z_{1:t-1}, x_{1:t}))
+
+
+Static State Binary Bayes Filter
+
+By computing the ratio of both probabilities, we obtain:
+
+p(m_i | z_{1:t}, x_{1:t}) / (1 - p(m_i | z_{1:t}, x_{1:t}))
+
+= [p(m_i | z_t, x_t) * p(m_i | z_{1:t-1}, x_{1:t-1}) * p(¬m_i)] /
+  [p(¬m_i | z_t, x_t) * p(¬m_i | z_{1:t-1}, x_{1:t-1}) * p(m_i)]
+
+= [p(m_i | z_t, x_t) / (1 - p(m_i | z_t, x_t))] *
+  [p(m_i | z_{1:t-1}, x_{1:t-1}) / (1 - p(m_i | z_{1:t-1}, x_{1:t-1}))] *
+  [(1 - p(m_i)) / p(m_i)]
+
+Labels:
+- uses z_t
+- recursive term
+- prior
+
+Odds(x)=p(x)/(1-p(x)) or p(x)=1/(1+1/Odds(x))d
+
+For reasons of efficiency, one performs the calculations in the log odds notation.
+
+
+
+Log Odds Notation
+• Log odds ratio is defined as
+P(x)
+1(x) = 10g
+1 - p(x)
+• and with the ability to retrieve p(x)
+1
+p(x) = 1 -
+1 + exp l(x)
+
+
+Occupancy Mapping in Log Odds Form
+• The product turns into a sum
+mi 21:t, X 1:t)
+1(mi | zt, xt) +(mi | 21:t- 1, X1:t-1) - l(mi)
+inverse sensor model
+recursive term
+prior
+• or in short
+It,i = inv_sensor model (mi, Xt, 2t) + L+-1,i - lo
+41
+
+
+
+Occupancy Mapping Algorithm
+occupancy grid mapping({lt-1,i}, xt, zt):
+1:
+2:
+3:
+4:
+5:
+6:
+for all cells mi do
+if mi in perceptual field of zt then
+しっ？=1-1， + inv_sensor_model（miyut,ct） -lo
+else
+8:
+endif endfor return it,is
+highly efficient, we only have to compute sums
+
+Occupancy Grid Mapping
+• Moravec and Elfes proposed occupancy grid mapping in the mid 80 'ies
+• Developed for noisy sonar sensors
+- Also called "mapping with known poses"
+
+
+Eg: Inverse sensor model for laser range finders.
+	Inverse sensor model for sonar range finders.
+
+
+Occupancy Grids
+From Laser Scans to Maps
+we need to find the cells that are covered by the range reading, for eg: which cells should marked occupant if a slant line is noticed.
+
+Using crytographics : Bresenham'd line algorithm.
+which makes the cells through which a line passes given the starating and the end cells within the map.
+
+Occupancy Grid Map Summary
+• Occupancy grid maps discretize the space into independent cells
+• Each cell is a binary random variable estimating if the cell is occupied
+• Static state binary Bayes filter per cell
+• Mapping with known poses is easy
+• Log odds model is fast to compute
+• No need for predefined features
+• We assumed known poses (so far)
+
+Literature
+Static state binary Bayes filter
+- Thrun et al.: "Probabilistic Robotics",
+Chapter 4.2
+Occupancy Grid Mapping
+• Thrun et al.: "Probabilistic Robotics"
+Chapter 9.1+9.2
+
+

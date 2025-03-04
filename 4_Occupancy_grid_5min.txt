@@ -1,0 +1,23 @@
+What is it: 2D representation of the world around, like a map.
+	Used for navigation, localization, etc.
+
+By definition its a 2d grid of cells containing probablilities.
+
+Contains Occupancy gird is made up of cells and stores data representing the availability of each cell.
+Can be used to answer these questions:
+	1) Is the cell free from obstacles?
+	2) Can the robot travel to it?
+	3) Often used to deduce the best path.
+Is like a pixelated map or an excel sheet trying to approximately represent a view of the world through which the mobile is meant to move.
+
+Unfortunately it's tough due to the world being imperfect, we must use uncertainity here as well.
+
+Assumptions:
+	A place is either free or occupied 
+	Grid cells are independent of each other
+	The world around use doesn't change, it will be considered as static
+
+We'll be using static state binary Bayes' filter to estimate the probability distribution for every place.
+
+This may be extended to 3D, for a pixels like boxes representing the world. But will keep estimating the state of the world using a variable containing the probability of occupancy.
+
